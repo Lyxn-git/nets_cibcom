@@ -12,6 +12,9 @@ function drawArrow(base, vec, myColor) {
   pop();
 }
 
+function sigmoid(x, xmax, k, x_0) {
+  return xmax / (1 + Math.exp(-k*(x-x_0)))
+}
 
 
 class Node {
@@ -102,7 +105,7 @@ class Node {
     if (neighbors.length > 0) {
       this.cohesion(neighbors);
       this.repulsion(neighbors);
-      //this.aligning(neighbors);
+      this.aligning(neighbors);
     }
 
     this.drag()
@@ -135,8 +138,23 @@ class Node {
     }
   }
 
+  aligning(neighbors) {
+    let average_v = createVector(0, 0);
+    for (let neighbor of neighbors) {
+      average_v.add(neighbor.v);
+    }
+    average_v.div(neighbors.length);
+    //circle(average_pos.x, average_pos.y, 10)
+    this.v.lerp(average_v, 0.0001)
+    fill(0, 255, 0)
+
+  }
+
   drag() {
     let drag_coef = 0.01;
-    this.v.setMag(this.v.setMag - drag_coef * this.v.mag * this.v.mag);
+    let vmax = 10;
+    let k = 0.8;
+    let half_max_v = 5;
+    this.v.setMag(sigmoid(this.v.mag, vmax, k, half_max_v));
   }
 }
